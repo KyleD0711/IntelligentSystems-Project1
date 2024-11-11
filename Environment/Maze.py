@@ -1,10 +1,15 @@
 from .Cell import Cell
+from Sprites.Pellet import Pellet
+from Sprites.Pacman import Pacman
+from Sprites.Direction import Direction
 import csv
 
 class Maze:
     def __init__(self):
-        self.rows = []
+        self.rows: [Cell] = []
         self.currentPos = (0,0)
+        self.score = 0
+        self.num_pellets = 0
 
         with open('Environment/MazeStructure.csv', newline='') as mazeStructure:
             mazeCSV = csv.reader(mazeStructure, delimiter=",")
@@ -20,21 +25,32 @@ class Maze:
                 for cell in row:
 
                     type = "Empty"
+                    cellSprite = None
 
                     if cell == "1":
                         type = "Wall"
+                    elif cell == "0":
+                        cellSprite = Pellet(rowIndex, colIndex)
+                        self.num_pellets += 1
 
-                    newCell = Cell(rowIndex, colIndex, type)
+                    newCell = Cell(rowIndex, colIndex, type, cellSprite)
                     cellRow.append(newCell)
 
                     colIndex += 1
 
                 self.rows.append(cellRow)
                 rowIndex += 1
+            self.pacman = Pacman(13, 23)
+            self.rows[13][23].sprite = self.pacman
 
-    def getSurroundingCells(self):
-        currentX = self.currentPos[1]
-        currentY = self.currentPos[0]
+    def draw(self, screen):
+        for rowIndex, row in enumerate(self.rows):
+            for colIndex, cell in enumerate(row):
+                cell.draw(screen)
+
+    def getSurroundingCells(self, row, col):
+        currentX = col
+        currentY = row
         max_cols = len(self.rows[0])
 
         if currentY == 14:
@@ -56,35 +72,18 @@ class Maze:
 
         return cells
 
+    def getCell(self, col, row) -> Cell:
+        return self.rows[row][col]
 
-    def movePacman(self, xDiff, yDiff):
-        # Input validation
-        if (xDiff != 0 and yDiff != 0) or abs(xDiff) > 1 or abs(yDiff) > 1:
-            return False
+    def movePacman(self, direction):
+        self.pacman.move(direction)
+        if type(self.rows[self.pacman.row][self.pacman.col].sprite) == Pellet:
+            self.num_pellets -= 1
 
-        # Calculate new position
-        new_row = self.pacman_position[0] + yDiff
-        new_col = self.pacman_position[1] + xDiff
-        max_cols = len(self.maze[0])
+        self.rows[self.pacman.row][self.pacman.col].sprite = self.pacman
 
-        # Check for wrap-around behavior in row 15 (index 14)
-        if new_row == 14:
-            if new_col < 0:  # Moving left off the left edge
-                new_col = max_cols - 1  # Wrap to the right edge
-            elif new_col >= max_cols:  # Moving right off the right edge
-                new_col = 0  # Wrap to the left edge
 
-        # Check if new position is within vertical bounds of the maze
-        if new_row < 0 or new_row >= len(self.maze):
-            return False  # Out of bounds vertically
 
-        # Check if the new position is a wall
-        if self.maze[new_row][new_col] == 1:
-            return False  # Cannot move into a wall
-
-        # Update Pac-Man's position
-        self.pacman_position = (new_row, new_col)
-        return True
 
             
 

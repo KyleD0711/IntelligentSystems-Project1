@@ -1,10 +1,15 @@
 from Environment.Maze import Maze
+from Sprites import Pacman
+from Sprites.Direction import Direction
 import pygame
+import os
 # This is a sample Python script.
 
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
+WINDOW_WIDTH = os.getenv("WINDOW_WIDTH", 672)
+WINDOW_HEIGHT = os.getenv("WINDOW_HEIGHT", 744)
+MOVE_AMOUNT = os.getenv("MOVE_AMOUNT", 5)
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -15,13 +20,12 @@ def print_hi(name):
 if __name__ == '__main__':
     print_hi('PyCharm')
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
 
 testMaze = Maze()
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((672, 744))
+screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 clock = pygame.time.Clock()
 running = True
 
@@ -30,14 +34,15 @@ BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
 
 # Define cell size (assuming a 28x31 grid, adjust if needed)
-CELL_SIZE = 24  # This gives 28 columns by 31 rows for a screen size of 672x744
-
+CELL_SIZE = os.getenv("CELL_SIZE", 24)  # This gives 28 columns by 31 rows for a screen size of 672x744
+move = 0
 while running:
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
 
     mazeImg = pygame.image.load('Environment/Maze.png')
     mazeImg = pygame.transform.scale(mazeImg, (672, 744))
@@ -63,6 +68,7 @@ while running:
             colIndex += 1
         rowIndex += 1
 
+    testMaze.draw(screen)
     # flip() the display to put your work on screen
     pygame.display.flip()
 
