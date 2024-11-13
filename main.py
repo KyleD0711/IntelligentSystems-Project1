@@ -21,13 +21,13 @@ if __name__ == '__main__':
     print_hi('PyCharm')
 
 
-testMaze = Maze()
 
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 clock = pygame.time.Clock()
 running = True
+testMaze = Maze()
 
 # Define colors
 BLUE = (0, 0, 255)

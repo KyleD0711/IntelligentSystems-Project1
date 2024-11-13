@@ -1,6 +1,7 @@
 from .Cell import Cell
 from Sprites.Pellet import Pellet
 from Sprites.Pacman import Pacman
+from Sprites.Ghost import Ghost
 from Sprites.Direction import Direction
 import csv
 
@@ -41,7 +42,10 @@ class Maze:
                 self.rows.append(cellRow)
                 rowIndex += 1
             self.pacman = Pacman(13, 23)
+            self.ghost = Ghost(10, 15)  # Set initial position for Ghost
+
             self.rows[13][23].sprite = self.pacman
+            self.rows[10][15].sprite = self.ghost
 
     def draw(self, screen):
         for rowIndex, row in enumerate(self.rows):
