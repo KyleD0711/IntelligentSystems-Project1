@@ -6,8 +6,3 @@ class Cell:
         self.row = row
         self.col = col
         self.type = type
-        self.sprite: pygame.sprite.Sprite = sprite
-
-    def draw(self, screen):
-        if self.sprite is not None:
-            self.sprite.draw(screen)
