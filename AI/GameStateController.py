@@ -1,3 +1,4 @@
+from Sprites.Ghost import Ghost
 from Sprites.Pellet import Pellet
 from Sprites.Pacman import Pacman
 from Sprites.Score import Score
@@ -8,10 +9,13 @@ class GameStateController:
         self.num_pellets = len(pellets)
         self.pacman = Pacman(13, 23, 48)
         self.pellets = pellets
+        self.ghost = Ghost(1, 1)  # Initial ghost position
         self.score = Score()
 
     def isGameOver(self):
-        return self.num_pellets == 0 or not self.pellets or len(self.pellets) == 0
+        pacman_pos = (self.pacman.row, self.pacman.col)
+        ghost_pos = (self.ghost.row, self.ghost.col)
+        return self.num_pellets == 0 or not self.pellets or len(self.pellets) == 0 or pacman_pos == ghost_pos or (abs(self.pacman.col - self.ghost.col) <= 1 and abs(self.pacman.row - self.ghost.row) <= 1)
 
     def handlePelletPacmanCollision(self):
         print(self.pacman.col, self.pacman.row)
@@ -29,10 +33,16 @@ class GameStateController:
         self.score.draw(screen)
         for pellet in self.pellets:
             pellet.draw(screen)
+        self.ghost.draw(screen)        
 
     def moveEntities(self):
         self.movePacman()
+        self.moveGhost()
 
     def movePacman(self):
         self.pacman.move(self.gameBoard, self.pellets)
         self.handlePelletPacmanCollision()
+
+    def moveGhost(self):
+        pacman_coords = (self.pacman.row, self.pacman.col)
+        self.ghost.move(self.gameBoard, pacman_coords)
