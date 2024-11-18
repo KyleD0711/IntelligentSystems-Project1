@@ -17,8 +17,9 @@ class Maze:
     #   Move Pacman
     #   Handle Pellet Pacman collision
     #   Handle Ghost Movement
-    def __init__(self):
+    def __init__(self, yOffset):
         self.gameBoard: [Cell] = []
+        self.yOffset = yOffset
         pellets = []
 
         PACMAN_START_ROW = os.getenv("PACMAN_START_ROW", 23)
@@ -42,7 +43,7 @@ class Maze:
                         type = "Wall"
                     elif cell == "0":
                         if rowIndex != PACMAN_START_ROW or colIndex != PACMAN_START_COL:
-                            pellets.append(Pellet(rowIndex, colIndex))
+                            pellets.append(Pellet(rowIndex, colIndex, self.yOffset))
 
                     newCell = Cell(rowIndex, colIndex, type)
                     cellRow.append(newCell)
