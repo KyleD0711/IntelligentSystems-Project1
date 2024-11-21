@@ -17,7 +17,7 @@ class Maze:
     #   Move Pacman
     #   Handle Pellet Pacman collision
     #   Handle Ghost Movement
-    def __init__(self, yOffset):
+    def __init__(self, yOffset, algorithm):
         self.gameBoard: [Cell] = []
         self.yOffset = yOffset
         pellets = []
@@ -52,7 +52,8 @@ class Maze:
 
                 self.gameBoard.append(cellRow)
                 rowIndex += 1
-        self.gameStateController = GameStateController(self.gameBoard, pellets)
+
+        self.gameStateController = GameStateController(self.gameBoard, pellets, algorithm)
 
     def moveEntities(self):
         self.gameStateController.moveEntities()

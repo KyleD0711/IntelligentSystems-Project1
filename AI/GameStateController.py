@@ -1,24 +1,25 @@
 from Sprites.Ghost import Ghost
-from Sprites.Pellet import Pellet
 from Sprites.Pacman import Pacman
 from Sprites.Score import Score
-import numpy as np
+from AI.Graph import Graph
 class GameStateController:
-    def __init__(self, gameBoard, pellets):
-        self.gameBoard = gameBoard
+    def __init__(self, gameBoard, pellets, algorithm=None):
+        self.gameBoard = Graph(gameBoard, algorithm=algorithm)
         self.num_pellets = len(pellets)
-        self.pacman = Pacman(13, 23, 48)
+        self.pacman = Pacman(13, 23, 48, self.gameBoard)
         self.pellets = pellets
-        self.ghost = Ghost(1, 1)  # Initial ghost position
+        self.pellets_tuple = []
+        for pellet in pellets:
+            self.pellets_tuple.append((pellet.row, pellet.col))
+        self.ghost = Ghost(6, 5, 48, self.gameBoard)  # A winning game position is col = 6 and row = 5
         self.score = Score()
 
     def isGameOver(self):
         pacman_pos = (self.pacman.row, self.pacman.col)
         ghost_pos = (self.ghost.row, self.ghost.col)
-        return self.num_pellets == 0 or not self.pellets or len(self.pellets) == 0 or pacman_pos == ghost_pos or (abs(self.pacman.col - self.ghost.col) <= 1 and abs(self.pacman.row - self.ghost.row) <= 1)
+        return self.num_pellets == 0 or not self.pellets or len(self.pellets) == 0 or pacman_pos == ghost_pos
 
     def handlePelletPacmanCollision(self):
-        print(self.pacman.col, self.pacman.row)
         self.score.add_score(50)
         pellets_to_remove = []
         for pellet in self.pellets:
@@ -27,6 +28,7 @@ class GameStateController:
                 self.num_pellets -= 1
         for pellet in pellets_to_remove:
             self.pellets.remove(pellet)
+            self.pellets_tuple.remove((pellet.row, pellet.col))
 
     def draw(self, screen):
         self.pacman.draw(screen)
@@ -40,9 +42,8 @@ class GameStateController:
         self.moveGhost()
 
     def movePacman(self):
-        self.pacman.move(self.gameBoard, self.pellets)
+        self.pacman.move(self.pellets_tuple, self.ghost.getPosition())
         self.handlePelletPacmanCollision()
 
     def moveGhost(self):
-        pacman_coords = (self.pacman.row, self.pacman.col)
-        self.ghost.move(self.gameBoard, pacman_coords)
+        self.ghost.move(self.pacman.getPosition())

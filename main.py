@@ -2,30 +2,102 @@ from Environment.Maze import Maze
 import pygame
 import os
 import time
+import sys
 # This is a sample Python script.
 
+pygame.init()
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
 WINDOW_WIDTH = os.getenv("WINDOW_WIDTH", 672)
 WINDOW_HEIGHT = os.getenv("WINDOW_HEIGHT", 792)
 MOVE_AMOUNT = os.getenv("MOVE_AMOUNT", 5)
+BACKGROUND_COLOR = (0, 0, 0)
+TEXT_COLOR = (255, 255, 0)
+BUTTON_COLOR = (50, 50, 200)
+BUTTON_HOVER_COLOR = (100, 100, 255)
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+# FONTS
+# Fonts
+pygame.font.init()
+TITLE_FONT = pygame.font.Font(None, 80)  # Default Pygame font
+BUTTON_FONT = pygame.font.Font(None, 50)
 
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# pygame setup
-pygame.init()
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+pygame.display.set_caption("Pacman")
 clock = pygame.time.Clock()
 running = True
-testMaze = Maze(48)
 
+def render_text(text, font, color, position):
+    surface = font.render(text, True, color)
+    rect = surface.get_rect(center=position)
+    return surface, rect
+
+# Pacman animation
+def draw_pacman_animation(surface, frame):
+    # Pacman mouth animation
+    angle = (30 * abs(frame % 40 - 20) / 20)  # Open and close cycle
+    pacman_color = (255, 255, 0)
+    pacman_radius = 50
+    pacman_center = (400, 400)
+
+    # Draw pacman
+    pygame.draw.circle(surface, pacman_color, pacman_center, pacman_radius)
+    pygame.draw.polygon(surface, BACKGROUND_COLOR, [
+        pacman_center,
+        (pacman_center[0] + pacman_radius, pacman_center[1] - angle),
+        (pacman_center[0] + pacman_radius, pacman_center[1] + angle)
+    ])
+
+# Main menu loop
+def home_screen():
+    clock = pygame.time.Clock()
+    running = True
+    selected_algorithm = None
+    buttons = [
+        {"label": "DFS", "rect": pygame.Rect(300, 200, 200, 60), "algorithm": "dfs"},
+        {"label": "BFS", "rect": pygame.Rect(300, 280, 200, 60), "algorithm": "bfs"},
+        {"label": "UCS", "rect": pygame.Rect(300, 360, 200, 60), "algorithm": "ucs"},
+        {"label": "A*", "rect": pygame.Rect(300, 440, 200, 60), "algorithm": None},
+    ]
+
+    while running:
+        screen.fill(BACKGROUND_COLOR)
+
+        # Draw title
+        title_surface, title_rect = render_text("Select Algorithm", TITLE_FONT, TEXT_COLOR, (WINDOW_WIDTH // 2, 100))
+        screen.blit(title_surface, title_rect)
+
+        # Draw buttons
+        mouse_pos = pygame.mouse.get_pos()
+        for button in buttons:
+            # Change color on hover
+            color = BUTTON_HOVER_COLOR if button["rect"].collidepoint(mouse_pos) else BUTTON_COLOR
+            pygame.draw.rect(screen, color, button["rect"])
+            # Draw button label
+            label_surface, label_rect = render_text(button["label"], BUTTON_FONT, TEXT_COLOR, button["rect"].center)
+            screen.blit(label_surface, label_rect)
+
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for button in buttons:
+                    if button["rect"].collidepoint(event.pos):
+                        selected_algorithm = button["algorithm"]
+                        running = False  # Exit the menu loop
+
+        # Update the screen
+        pygame.display.flip()
+        clock.tick(60)
+
+    return selected_algorithm
+
+selected_algorithm = home_screen()
+# pygame setup
+
+testMaze = Maze(48, selected_algorithm)
 
 # Define cell size (assuming a 28x31 grid, adjust if needed)
 CELL_SIZE = os.getenv("CELL_SIZE", 24)  # This gives 28 columns by 31 rows for a screen size of 672x744
@@ -51,8 +123,7 @@ while running and not game_over:
     testMaze.draw(screen)
     # flip() the display to put your work on screen
     pygame.display.flip()
-
-    time.sleep(0.25)
+    time.sleep(.1)
     if testMaze.isOver():
         game_over = True
 

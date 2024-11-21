@@ -1,20 +1,18 @@
-from AI.MazeTree import get_directions_to_cell, generate_tree
-from AI.MazeTree import TreeNode
-
+from AI.Graph import Graph
+from Sprites.Direction import path_to_directions
 class BrainGhost:
-    def __init__(self):
+    def __init__(self, gameBoard: Graph):
         self.moves = []
+        self.gameBoard = gameBoard
 
-    def getNextMove(self, gameBoard, pacman_coords, ghost_coords):
-        if not self.moves:
-            self.moves = self.findMovesToPacman(gameBoard, ghost_coords, pacman_coords)
-
+    def getNextMove(self, pacman, ghost):
+        if not self.moves or len(self.moves) == 0:
+            self.moves = self.findMovesToPacman(pacman, ghost)
         if self.moves:
             move = self.moves.pop(0)
-            return move[2]  # Return direction (UP, DOWN, LEFT, RIGHT)
+            return move  # Return direction (UP, DOWN, LEFT, RIGHT)
         return None
 
-    def findMovesToPacman(self, gameBoard, ghost_coords, pacman_coords):
-        moveTree = generate_tree(gameBoard, ghost_coords)
-        return get_directions_to_cell(moveTree, TreeNode(pacman_coords[1], pacman_coords[0]))
-
+    def findMovesToPacman(self, pacman, ghost):
+        path = self.gameBoard.shortest_path(ghost, pacman)
+        return path_to_directions(path)
