@@ -20,11 +20,11 @@ class GameStateController:
         return self.num_pellets == 0 or not self.pellets or len(self.pellets) == 0 or pacman_pos == ghost_pos
 
     def handlePelletPacmanCollision(self):
-        self.score.add_score(50)
         pellets_to_remove = []
         for pellet in self.pellets:
             if int(self.pacman.col) == int(pellet.col) and int(self.pacman.row) == int(pellet.row):
                 pellets_to_remove.append(pellet)
+                self.score.add_score(50)
                 self.num_pellets -= 1
         for pellet in pellets_to_remove:
             self.pellets.remove(pellet)
