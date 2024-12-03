@@ -1,6 +1,3 @@
-import pygame
-
-
 class Cell:
     def __init__(self, row, col, type, cost=0):
         self.row = row
